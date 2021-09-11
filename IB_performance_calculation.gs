@@ -92,7 +92,7 @@ function IB_weighted_returns() {
   sheet.getRange(1, calculationStartColumn).setValue('timeWeightedReturn');
 
   // 2D array of [[stock_ticker, return, remainingShares]]
-  var stockReturnArray = [];
+  var stockReturnArray = [["ticker", "annualized return", "remaining shares"]];
   var shareWeightedReturnTally = 0;
   var numSharesTally = 0;
   var remainingSharesTally = 0;
