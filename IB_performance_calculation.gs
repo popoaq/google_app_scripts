@@ -91,10 +91,11 @@ function IB_weighted_returns() {
 
   sheet.getRange(1, calculationStartColumn).setValue('timeWeightedReturn');
 
-  // 2D array of [[stock_ticker, return]]
+  // 2D array of [[stock_ticker, return, remainingShares]]
   var stockReturnArray = [];
   var shareWeightedReturnTally = 0;
   var numSharesTally = 0;
+  var remainingSharesTally = 0;
   // if value is null, it's a subTotal column, if not null, then parse date
   for (var i = 0; i < dateTimeValues.length; i++) {
     var currentRowIndex = i + 2;
@@ -109,6 +110,7 @@ function IB_weighted_returns() {
       // we only care about returns on stocks we have ever bought, so we omit sell order
       var numShares = parseInt(sheet.getRange(currentRowIndex, 8 /*hardcoded share quantity*/).getValue());
       if (numShares < 0) {
+        remainingSharesTally += numShares;
         continue;
       }
       // date format in data is "2020-12-17, 12:15:35"
@@ -124,13 +126,15 @@ function IB_weighted_returns() {
 
       shareWeightedReturnTally += (timeWeightedReturn * numShares);
       numSharesTally += numShares;
+      remainingSharesTally += numShares;
     } else {
       // when the datetime cell is null, this is a subtotal
       var totalWeightedReturn = shareWeightedReturnTally / numSharesTally;
-      stockReturnArray.push([sheet.getRange(currentRowIndex, 6).getValue(), totalWeightedReturn]);
+      stockReturnArray.push([sheet.getRange(currentRowIndex, 6).getValue(), totalWeightedReturn, remainingSharesTally]);
       sheet.getRange(currentRowIndex, calculationStartColumn).setValue(totalWeightedReturn).setNumberFormat("#.###%");
       shareWeightedReturnTally = 0;
       numSharesTally = 0;
+      remainingSharesTally = 0;
     }
   }
 
